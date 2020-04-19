@@ -131,8 +131,13 @@ var supportHeaders = [
   {
     text: '###### tags: `example`',
     search: '###### tags:'
+  },
+  {
+    text: '###### category: `main/sub`',
+    search: '###### category:'
   }
-]
+
+  ]
 const supportReferrals = [
   {
     text: '[reference link]',
