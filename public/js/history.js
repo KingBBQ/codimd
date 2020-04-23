@@ -218,7 +218,8 @@ export function parseStorageToHistory (list, callback) {
   }
   parseToHistory(list, [], callback)
 }
-
+// TODO: this is where the list really gets populated!
+// list parameter is the DOM element, where we push the pages in
 function parseToHistory (list, notehistory, callback) {
   if (!callback) return
   else if (!list || !notehistory) callback(list, notehistory)

@@ -23,6 +23,10 @@ import {
   saveStorageHistoryToServer
 } from './history'
 
+import {
+  parseServerToWiki
+} from './wiki'
+
 import { saveAs } from 'file-saver'
 import List from 'list.js'
 import unescapeHTML from 'lodash/unescape'
@@ -59,6 +63,7 @@ const options = {
   }]
 }
 const historyList = new List('history', options)
+const wikiList = $('#wiki-list')
 
 window.migrateHistoryFromTempCallback = pageInit
 setloginStateChangeEvent(pageInit)
@@ -77,6 +82,7 @@ function pageInit () {
       $('.ui-signout').show()
       $('.ui-history').click()
       parseServerToHistory(historyList, parseHistoryCallback)
+      parseServerToWiki(wikiList, parseWikiCallback)
     },
     () => {
       $('.ui-signin').show()
@@ -86,6 +92,7 @@ function pageInit () {
       $('.ui-name').html('')
       $('.ui-signout').hide()
       parseStorageToHistory(historyList, parseHistoryCallback)
+      parseServerToWiki(wikiList, parseWikiCallback)
     }
   )
 }
@@ -109,8 +116,17 @@ $('.ui-home').click(function (e) {
 
 $('.ui-history').click(() => {
   if (!$('#history').is(':visible')) {
+    $('#wiki').hide()
     $('.section:visible').hide()
-    $('#history').fadeIn()
+    $('#history').show()
+  }
+})
+
+$('.ui-wiki').click(() => {
+  if (!$('#wiki').is(':visible')) {
+    $('.section:visible').hide()
+    $('#history').hide()
+    $('#wiki').show()
   }
 })
 
@@ -168,6 +184,79 @@ function parseHistoryCallback (list, notehistory) {
   buildTagsFilter(filtertags)
 }
 
+// update items whenever list updated
+historyList.on('updated', e => {
+  for (let i = 0, l = e.items.length; i < l; i++) {
+    const item = e.items[i]
+    if (item.visible()) {
+      const itemEl = $(item.elm)
+      const values = item._values
+      const a = itemEl.find('a')
+      const pin = itemEl.find('.ui-history-pin')
+      const tagsEl = itemEl.find('.tags')
+      // parse link to element a
+      a.attr('href', `${serverurl}/${values.id}`)
+      // parse pinned
+      if (values.pinned) {
+        pin.addClass('active')
+      } else {
+        pin.removeClass('active')
+      }
+      // parse tags
+      const tags = values.tags
+      if (tags && tags.length > 0 && tagsEl.children().length <= 0) {
+        const labels = []
+        for (let j = 0; j < tags.length; j++) {
+          // push into the item label
+          labels.push(`<span class='label label-default'>${tags[j]}</span>`)
+        }
+        tagsEl.html(labels.join(' '))
+      }
+    }
+  }
+  $('.ui-history-close').off('click')
+  $('.ui-history-close').on('click', historyCloseClick)
+  $('.ui-history-pin').off('click')
+  $('.ui-history-pin').on('click', historyPinClick)
+})
+
+function parseWikiCallback (list, wikiPages) {
+  // sort by pinned then timestamp
+  // parse filter tags
+  console.log('CallBack')
+  console.log(wikiPages)
+  wikiPages.forEach(element => console.log(element))
+
+  var oldCategory = ''
+  wikiPages.forEach(function (item) {
+    // eslint-disable-next-line eqeqeq
+    if (item.category != oldCategory) {
+      list.append('<h1>' + item.category + '</h1>')
+    }
+    list.append('<li>')
+    list.append('<a href="' + item.id + '">' + item.title + '</a>')
+    list.append('</li>')
+    oldCategory = item.category
+  })
+}
+/*
+// update items whenever list updated
+wikiList.on('updated', e => {
+  for (let i = 0, l = e.items.length; i < l; i++) {
+    const item = e.items[i]
+    if (item.visible()) {
+      console.log('generating: ' + item)
+      const itemEl = $(item.elm)
+      const values = item._values
+      const a = itemEl.find('a')
+      // parse link to element a
+      a.attr('href', `${serverurl}/${values.id}`)
+      // parse pinned
+      // parse tags
+    }
+  }
+})
+*/
 // update items whenever list updated
 historyList.on('updated', e => {
   for (let i = 0, l = e.items.length; i < l; i++) {
@@ -347,6 +436,26 @@ $('.ui-clear-history').click(() => {
   clearHistory = true
   deleteId = null
 })
+/*
+$('.ui-refresh-wiki').click(() => {
+  $('#wiki-list').slideUp('fast')
+
+  wikiList.clear()
+  parseHistory(wikiList, (list, notehistory) => {
+    parseHistoryCallback(list, notehistory)
+    // checkHistoryList()
+    $('#wiki-list').slideDown('fast')
+  })
+  // TODO - refresh or load wiki
+  // console.log(pages)
+  // console.log(pages.responseJSON.pages.count)
+  // const notehistory = JSON.parse(pages.responseText)
+  // console.log(notehistory)
+  // var notes = getPages()
+  // parseServerToHistory(wikiList, parseHistoryCallback)
+  // console.log('alles neu macht der mai - 2')
+})
+*/
 
 $('.ui-refresh-history').click(() => {
   const lastTags = $('.ui-use-tags').select2('val')

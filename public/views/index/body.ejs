@@ -11,6 +11,8 @@
                             </li>
                             <li class="ui-history<% if(signin) { %> active<% } %>"><a href="#"><%= __('History') %></a>
                             </li>
+                            <li class="ui-wiki<% if(signin) { %> active<% } %>"><a href="#"><%= __('Wiki') %></a>
+                            </li>
                             <div class="ui-signin" style="float: right; margin-top: 8px;<% if(signin) { %> display: none;<% } %>">
                                 <% if (allowAnonymous) { %>
                                 <a type="button" href="<%- serverURL %>/new" class="btn btn-sm btn-primary"><i class="fa fa-plus"></i> <%= __('New guest note') %></a>
@@ -121,6 +123,12 @@
                 </ul>
                 <ul class="pagination"></ul>
             </div>
+
+            <div id="wiki" class="section">
+                <ul id="wiki-list" style="display: inline-block; text-align: left ">
+                </ul>
+            </div>
+
 
             <div class="mastfoot">
                 <div class="inner">
