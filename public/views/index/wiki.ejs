@@ -10,10 +10,10 @@
 </div>
 
 <script>
+    const serverurl = 'http://localhost:3000'
 
-
-  // $.get(`${serverurl}/wikiPages`)
-  $.get(`http://localhost:3000/wikiPages`)
+  $.get(`${serverurl}/wikiPages`)
+  //$.get(`/wikiPages`)
     .done(data => {
       if (data.pages) {
         fillList(data.pages)
@@ -25,7 +25,7 @@
 
 
   const options = {
-    valueNames: ['title', 'tags'],
+    valueNames: ['title', 'tags', 'visited'],
     item: `<li class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
           <span class="id" style="display:none;"></span>
           <a href="#">
@@ -37,8 +37,7 @@
                 <p>
                   <i><i class="fa fa-clock-o"></i> visited </i><i class="fromNow"></i>
                   <br>
-                  <i class="timestamp" style="display:none;"></i>
-                  <i class="time"></i>
+                  <i class="visited"></i>
                 </p>
                 <p class="tags"></p>
               </div>
@@ -51,20 +50,77 @@
     var oldCategory = ''
     var pages = []
     data.forEach(function (item) {
-      pages.push(item)
+      // console.log(item)
 
       if (item.category != oldCategory) {
+        //console.log('cat changed...')
+        //console.log(pages)
         // build the list
         buildList(pages, oldCategory)
         pages = []
       }
       oldCategory = item.category
+
+      pages.push(item)
+
     })
   }
+/*
+function updateItemFromNow () {
+  const items = $('.item').toArray()
+  for (let i = 0; i < items.length; i++) {
+    const item = $(items[i])
+    const timestamp = parseInt(item.find('.visited').text())
+    item.find('.fromNow').text(moment(timestamp).fromNow())
+  }
+}
+
+ */
+
   function buildList(data, category) {
-    var name = 'wiki-' + category
-    $('#wiki').append(`<div id=${name}><h1>${category}</h1><ul class="list"></ul></div>`)
-    new List(name, options, data);
+    var catList = (category.split('/'))
+    var name = 'wiki-' + catList
+    $('#wiki').append(`<div id=${name}><h${catList.length + 1}>${catList[catList.length-1]}</h${catList.length + 1}><ul class="list"></ul></div>`)
+    var e = new List(name, options, data);
+
+    console.log(name)
+    console.log(data)
+
+    console.log(e)
+
+     for (let i = 0, l = e.items.length; i < l; i++) {
+       const item = e.items[i]
+       if (item.visible()) {
+         const itemEl = $(item.elm)
+         const values = item._values
+         const a = itemEl.find('a')
+         const tagsEl = itemEl.find('.tags')
+         // parse link to element a
+         a.attr('href', `${serverurl}/${values.id}`)
+         // parse tags
+         const tags = values.tags
+         if (tags && tags.length > 0 && tagsEl.children().length <= 0) {
+           const labels = []
+           for (let j = 0; j < tags.length; j++) {
+             // push into the item label
+             labels.push(`<span class='label label-default'>${tags[j]}</span>`)
+           }
+           tagsEl.html(labels.join(' '))
+         }
+       }
+
+       //updateItemFromNow()
+     }
+
+/*
+    // auto update item fromNow every minutes
+    setInterval(updateItemFromNow, 60000)
+
+ */
+
+
+
+
   }
 
 </script>
