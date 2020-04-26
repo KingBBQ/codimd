@@ -101,18 +101,25 @@ app.use(
   })
 )
 
+// TODO: remove this later.
+/*
 // Generate a random nonce per request, for CSP with inline scripts
 app.use(csp.addNonceToLocals)
 
+
+ */
 // use Content-Security-Policy to limit XSS, dangerous plugins, etc.
 // https://helmetjs.github.io/docs/csp/
-if (config.csp.enable) {
+
+/* if (config.csp.enable) {
   app.use(helmet.contentSecurityPolicy({
     directives: csp.computeDirectives()
   }))
 } else {
   logger.info('Content-Security-Policy is disabled. This may be a security risk.')
 }
+
+ */
 
 i18n.configure({
   locales: ['en', 'zh-CN', 'zh-TW', 'fr', 'de', 'ja', 'es', 'ca', 'el', 'pt', 'it', 'tr', 'ru', 'nl', 'hr', 'pl', 'uk', 'hi', 'sv', 'eo', 'da', 'ko', 'id', 'sr'],

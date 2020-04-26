@@ -1,0 +1,71 @@
+
+
+<div id="wiki">
+    <h1>Wiki</h1>
+
+</div>
+
+<div id="hacker-list">
+    <ul class="list"></ul>
+</div>
+
+<script>
+
+
+  // $.get(`${serverurl}/wikiPages`)
+  $.get(`http://localhost:3000/wikiPages`)
+    .done(data => {
+      if (data.pages) {
+        fillList(data.pages)
+      }
+    })
+    .fail((xhr, status, error) => {
+      console.error(xhr.responseText)
+    })
+
+
+  const options = {
+    valueNames: ['title', 'tags'],
+    item: `<li class="col-xs-12 col-sm-6 col-md-6 col-lg-4">
+          <span class="id" style="display:none;"></span>
+          <a href="#">
+            <div class="item">
+              <div class="ui-history-pin fa fa-thumb-tack fa-fw"></div>
+              <div class="ui-history-close fa fa-close fa-fw" data-toggle="modal" data-target=".delete-history-modal"></div>
+              <div class="content">
+                <h4 class="title"></h4>
+                <p>
+                  <i><i class="fa fa-clock-o"></i> visited </i><i class="fromNow"></i>
+                  <br>
+                  <i class="timestamp" style="display:none;"></i>
+                  <i class="time"></i>
+                </p>
+                <p class="tags"></p>
+              </div>
+            </div>
+          </a>
+        </li>`,
+  }
+
+  function fillList(data) {
+    var oldCategory = ''
+    var pages = []
+    data.forEach(function (item) {
+      pages.push(item)
+
+      if (item.category != oldCategory) {
+        // build the list
+        buildList(pages, oldCategory)
+        pages = []
+      }
+      oldCategory = item.category
+    })
+  }
+  function buildList(data, category) {
+    var name = 'wiki-' + category
+    $('#wiki').append(`<div id=${name}><h1>${category}</h1><ul class="list"></ul></div>`)
+    new List(name, options, data);
+  }
+
+</script>
+
